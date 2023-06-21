@@ -1,0 +1,53 @@
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <title>WebGL School Report 3.</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@500&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <script src="../scripts/app.js"></script>
+  </head>
+  <body>
+  <div class="loader" data-loader></div>
+  <div id="webgl" data-webgl></div>
+  <p>Model by Loïc Norgeot</p>
+  </body>
+</html>
+
+<style>
+  body, p {
+    margin: 0;
+    padding: 0;
+  }
+  body {
+    font-family: 'Roboto', sans-serif;
+    height: 100%;
+    width: 100%;
+  }
+  div {
+    height: 100%;
+    inset: 0;
+    position: fixed;
+    width: 100%;
+  }
+  p {
+    bottom: 20px;
+    color: #ffffff;
+    font-size: 12px;
+    position: absolute;
+    right: 30px;
+  }
+  .loader {
+    background: #fff;
+    z-index: 10;
+  }
+  .is-loaded .loader {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.5s, visibility 0.5s;
+    visibility: hidden;
+  }
+</style>

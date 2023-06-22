@@ -121,10 +121,10 @@ class App3 {
       const gltfSpaceshipPath = './gltf/spaceship/scene.gltf';
 
       gltfLoader.load(gltfPlanetPath, (gltfPlanet) => {
-        // gltfPlanet.scene.traverse((data) => {
-        //   data.castShadow = true;
-        //   data.receiveShadow = true;
-        // });
+        gltfPlanet.scene.traverse((data) => {
+          data.castShadow = true;
+          data.receiveShadow = true;
+        });
         this.planet = gltfPlanet.scene;
 
         gltfLoader.load(gltfSpaceshipPath, (gltfSpaceship) => {
@@ -182,8 +182,8 @@ class App3 {
       App3.DIRECTIONAL_LIGHT_PARAM.z,
     );
 
-    // this.directionalLight.castShadow = true;
-    // this.directionalLight.shadow.mapSize.set(4096, 4096);
+    this.directionalLight.castShadow = true;
+    this.directionalLight.shadow.mapSize.set(4096, 4096);
 
     this.scene.add(this.directionalLight);
 

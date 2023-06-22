@@ -6,19 +6,22 @@
     <title>WebGL School Report 3.</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <script src="../scripts/app.js"></script>
   </head>
   <body>
   <div class="loader" data-loader></div>
-  <div id="webgl" data-webgl></div>
-  <p>Model by Loïc Norgeot</p>
+  <div data-webgl></div>
+  <ul>
+    <li>Space exploration by Shapernode</li>
+    <li>low poly space ship by chrisonciuconcepts</li>
+  </ul>
   </body>
 </html>
 
 <style>
-  body, p {
+  body, ul {
     margin: 0;
     padding: 0;
   }
@@ -33,12 +36,17 @@
     position: fixed;
     width: 100%;
   }
-  p {
+  ul {
     bottom: 20px;
     color: #ffffff;
     font-size: 12px;
+    line-height: 1.5;
+    list-style: none;
     position: absolute;
-    right: 30px;
+    left: 30px;
+  }
+  [data-webgl] {
+    opacity: 0.85;
   }
   .loader {
     background: #fff;

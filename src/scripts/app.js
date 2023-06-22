@@ -36,7 +36,7 @@ class App3 {
       far: 2000,
       x: 1.5,
       y: 1.0,
-      z: -1.0,
+      z: -0.75,
       lookAt: new THREE.Vector3(0.0, 0.0, 0.0),
     };
   }
@@ -82,9 +82,9 @@ class App3 {
   }
   
   /**
-   * 月と地球の間の距離
+   * 宇宙船と惑星の間の距離
    */
-  static get MOON_DISTANCE() {return 1.5;}
+  static get PLANET_DISTANCE() {return 1.5;}
   
   /**
    * 宇宙船の移動速度
@@ -103,14 +103,13 @@ class App3 {
     this.directionalLight;
     this.ambientLight;
     this.controls;
-    this.earth;             // 地球
-    this.earthTexture;      // 地球用テクスチャ
-    this.moon;              // 月
+    this.planet;            // 惑星
     this.spaceship;         // 宇宙船
     this.spaceshipDirection // 宇宙船の進行方向
 
     this.$webgl = document.querySelector('[data-webgl]');
     this.$loader = document.querySelector('[data-loader]');
+    
     this.clock = new THREE.Clock();
     this.render = this.render.bind(this);
   }
@@ -118,39 +117,39 @@ class App3 {
   load() {
     return new Promise((resolve) => {
       const gltfLoader = new GLTFLoader();
+      const gltfPlanetPath = './gltf/planet/scene.gltf';
+      const gltfSpaceshipPath = './gltf/spaceship/scene.gltf';
 
-      const gltfPath = './gltf/spaceship/scene.gltf';
-      const gltfEarthPath = './gltf/earth/scene.gltf';
-      const gltfMoonPath = './gltf/moon/scene.gltf';
+      gltfLoader.load(gltfPlanetPath, (gltfPlanet) => {
+        gltfPlanet.scene.traverse((data) => {
+          data.castShadow = true;
+          data.receiveShadow = true;
+        });
+        this.planet = gltfPlanet.scene;
 
-      gltfLoader.load(gltfMoonPath, (gltfMoon) => {
-        this.moon = gltfMoon.scene;
-
-        gltfLoader.load(gltfPath, (gltf) => {
-          gltf.scene.traverse((child) => {
-            if (child.isMesh) {
-              child.material.transparent = true; 
-            }
-          });
-          this.spaceship = gltf.scene;
-
-          gltfLoader.load(gltfEarthPath, (gltfEarth) => {
-            this.earth = gltfEarth.scene;
-            resolve();
-          });
+        gltfLoader.load(gltfSpaceshipPath, (gltfSpaceship) => {
+          this.spaceship = gltfSpaceship.scene;
+          resolve();
         });
       });
+
     });
   }
 
   init() {
-    this.renderer = new THREE.WebGLRenderer();
+    this.renderer = new THREE.WebGLRenderer({
+      antialias: true,
+      alpha: true,
+    });
     this.renderer.setClearColor(new THREE.Color(App3.RENDERER_PARAM.clearColor));
     this.renderer.setSize(App3.RENDERER_PARAM.width, App3.RENDERER_PARAM.height);
-    this.renderer.physicallyCorrectLights = true;
+    // this.renderer.physicallyCorrectLights = true;
+    this.renderer.shadowMap.enabled = true;
+    this.renderer.outputEncoding = THREE.GammaEncoding;
+
     this.$webgl.appendChild(this.renderer.domElement);
 
-    // 進行方向の初期値を +Y 方向に
+    // 宇宙船の進行方向の初期値を +Y 方向に
     this.spaceshipDirection = new THREE.Vector3(0.0, 1.0, 0.0).normalize();
 
     this.scene = new THREE.Scene();
@@ -182,6 +181,10 @@ class App3 {
       App3.DIRECTIONAL_LIGHT_PARAM.y,
       App3.DIRECTIONAL_LIGHT_PARAM.z,
     );
+
+    this.directionalLight.castShadow = true;
+    this.directionalLight.shadow.mapSize.set(4096, 4096);
+
     this.scene.add(this.directionalLight);
 
     this.ambientLight = new THREE.AmbientLight(
@@ -190,14 +193,12 @@ class App3 {
     );
     this.scene.add(this.ambientLight);
 
-    this.earth.scale.set(0.7, 0.7, 0.7);
-    this.scene.add(this.earth);
+    this.planet.scale.set(0.05, 0.05, 0.05);
+    this.planet.position.set(0.0, 0.25, 0.0);
+    this.scene.add(this.planet);
 
-    this.moon.scale.set(0.5, 0.5, 0.5);
-    this.scene.add(this.moon);
-
-    this.spaceship.scale.set(0.15, 0.15, 0.15);
-    this.spaceship.position.set(0.0, App3.MOON_DISTANCE, 0.0);
+    this.spaceship.scale.set(0.04, 0.04, 0.04);
+    this.spaceship.position.set(0.0, App3.PLANET_DISTANCE, 0.0);
     this.scene.add(this.spaceship);
     this.spaceshipDirection = new THREE.Vector3(0.0, 1.0, 0.0)
 
@@ -206,13 +207,13 @@ class App3 {
     document.documentElement.classList.add(App3.CLASSES.isLoaded);
 
     gsap.to(this.camera.position, {
-      x: 1,
+      x: 0.5,
       y: 1,
       z: 1,
       duration: 3,
       ease: 'expo.inOut',
     });
-
+    
     this.onResize();
   }
 
@@ -221,7 +222,7 @@ class App3 {
 
     this.controls.update();
 
-    this.earth.rotation.y += 0.002;
+    this.planet.rotation.y += 0.002;
 
     // 経過時間の取得
     const time = this.clock.getElapsedTime();
@@ -230,16 +231,10 @@ class App3 {
     const sin = Math.sin(time * 0.2);
     const cos = Math.cos(time * 0.2);
 
-    this.moon.position.set(
-      cos * App3.MOON_DISTANCE,
-      0.0,
-      sin * App3.MOON_DISTANCE,
-    );
-
     this.spaceship.position.set(
       0.0,
-      cos * App3.MOON_DISTANCE * 0.5,
-      sin * App3.MOON_DISTANCE * 0.5,
+      cos * App3.PLANET_DISTANCE * 0.55,
+      sin * App3.PLANET_DISTANCE * 0.55,
     );
 
     // 現在（前のフレームまで）の進行方向を変数に保持しておく
@@ -287,4 +282,3 @@ class App3 {
     }, false);
   }
 }
-
